@@ -639,15 +639,15 @@
 	<span class="doccomment">/// let mut wallet_config = WalletConfig::default();</span>
 	<span class="doccomment">/// # let dir = tempdir().map_err(|e| format!(&quot;{:#?}&quot;, e)).unwrap();</span>
 	<span class="doccomment">/// # let dir = dir</span>
-	<span class="doccomment">/// # 	.path()</span>
-	<span class="doccomment">/// # 	.to_str()</span>
-	<span class="doccomment">/// # 	.ok_or(&quot;Failed to convert tmpdir path to string.&quot;.to_owned())</span>
-	<span class="doccomment">/// # 	.unwrap();</span>
+	<span class="doccomment">/// #   .path()</span>
+	<span class="doccomment">/// #   .to_str()</span>
+	<span class="doccomment">/// #   .ok_or(&quot;Failed to convert tmpdir path to string.&quot;.to_owned())</span>
+	<span class="doccomment">/// #   .unwrap();</span>
 	<span class="doccomment">/// # wallet_config.data_file_dir = dir.to_owned();</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// // A NodeClient must first be created to handle communication between</span>
 	<span class="doccomment">/// // the wallet and the node.</span>
-	<span class="doccomment">/// let node_client = HTTPNodeClient::new(&amp;wallet_config.check_node_api_http_addr, None);</span>
+	<span class="doccomment">/// let node_client = HTTPNodeClient::new(&amp;wallet_config.check_node_api_http_addr, None).unwrap();</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// // impls::DefaultWalletImpl is provided for convenience in instantiating the wallet</span>
 	<span class="doccomment">/// // It contains the LMDBBackend, DefaultLCProvider (lifecycle) and ExtKeychain used</span>
@@ -655,7 +655,7 @@
 	<span class="doccomment">/// // These traits can be replaced with alternative implementations if desired</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// let mut wallet = Box::new(DefaultWalletImpl::&lt;&#39;static, HTTPNodeClient&gt;::new(node_client.clone()).unwrap())</span>
-	<span class="doccomment">///		as Box&lt;dyn WalletInst&lt;&#39;static, DefaultLCProvider&lt;HTTPNodeClient, ExtKeychain&gt;, HTTPNodeClient, ExtKeychain&gt;&gt;;</span>
+	<span class="doccomment">///     as Box&lt;dyn WalletInst&lt;&#39;static, DefaultLCProvider&lt;HTTPNodeClient, ExtKeychain&gt;, HTTPNodeClient, ExtKeychain&gt;&gt;;</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// // Wallet LifeCycle Provider provides all functions init wallet and work with seeds, etc...</span>
 	<span class="doccomment">/// let lc = wallet.lc_provider().unwrap();</span>
@@ -754,17 +754,17 @@
 	<span class="doccomment">/// let mut api_foreign = Foreign::new(wallet.clone(), None, None);</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// let block_fees = BlockFees {</span>
-	<span class="doccomment">///		fees: 800000,</span>
-	<span class="doccomment">///		height: 234323,</span>
-	<span class="doccomment">///		key_id: None,</span>
+	<span class="doccomment">///     fees: 800000,</span>
+	<span class="doccomment">///     height: 234323,</span>
+	<span class="doccomment">///     key_id: None,</span>
 	<span class="doccomment">/// };</span>
 	<span class="doccomment">/// // Build a new coinbase output</span>
 	<span class="doccomment">///</span>
-	<span class="doccomment">///	let res = api_foreign.build_coinbase(&amp;block_fees);</span>
+	<span class="doccomment">/// let res = api_foreign.build_coinbase(&amp;block_fees);</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// if let Ok(cb_data) = res {</span>
-	<span class="doccomment">///		// cb_data is populated with coinbase output info</span>
-	<span class="doccomment">///		// ...</span>
+	<span class="doccomment">///     // cb_data is populated with coinbase output info</span>
+	<span class="doccomment">///     // ...</span>
 	<span class="doccomment">/// }</span>
 	<span class="doccomment">/// ```</span>
 
@@ -812,13 +812,13 @@
 	<span class="doccomment">/// # let slate = Slate::blank(2);</span>
 	<span class="doccomment">/// // Receive a slate via some means</span>
 	<span class="doccomment">///</span>
-	<span class="doccomment">///	let res = api_foreign.verify_slate_messages(&amp;slate);</span>
+	<span class="doccomment">/// let res = api_foreign.verify_slate_messages(&amp;slate);</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// if let Err(e) = res {</span>
-	<span class="doccomment">///		// Messages don&#39;t validate, likely return an error</span>
-	<span class="doccomment">///		// ...</span>
+	<span class="doccomment">///     // Messages don&#39;t validate, likely return an error</span>
+	<span class="doccomment">///     // ...</span>
 	<span class="doccomment">/// } else {</span>
-	<span class="doccomment">/// 	// Slate messages are fine</span>
+	<span class="doccomment">///     // Slate messages are fine</span>
 	<span class="doccomment">/// }</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">///</span>
@@ -888,8 +888,8 @@
 	<span class="doccomment">/// let result = api_foreign.receive_tx(&amp;slate, None, None, None);</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// if let Ok(slate) = result {</span>
-	<span class="doccomment">///		// Send back to recipient somehow</span>
-	<span class="doccomment">///		// ...</span>
+	<span class="doccomment">///     // Send back to recipient somehow</span>
+	<span class="doccomment">///     // ...</span>
 	<span class="doccomment">/// }</span>
 	<span class="doccomment">/// ```</span>
 
@@ -949,21 +949,21 @@
 	<span class="doccomment">/// ```</span>
 	<span class="doccomment">/// # grin_wallet_api::doctest_helper_setup_doc_env_foreign!(wallet, wallet_config);</span>
 	<span class="doccomment">///</span>
-	<span class="doccomment">/// let mut api_owner = Owner::new(wallet.clone());</span>
+	<span class="doccomment">/// let mut api_owner = Owner::new(wallet.clone(), None);</span>
 	<span class="doccomment">/// let mut api_foreign = Foreign::new(wallet.clone(), None, None);</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// // . . .</span>
 	<span class="doccomment">/// // Issue the invoice tx via the owner API</span>
 	<span class="doccomment">/// let args = IssueInvoiceTxArgs {</span>
-	<span class="doccomment">///		amount: 10_000_000_000,</span>
-	<span class="doccomment">///		..Default::default()</span>
+	<span class="doccomment">///     amount: 10_000_000_000,</span>
+	<span class="doccomment">///     ..Default::default()</span>
 	<span class="doccomment">/// };</span>
 	<span class="doccomment">/// let result = api_owner.issue_invoice_tx(None, args);</span>
 	<span class="doccomment">///</span>
-	<span class="doccomment">///	// If result okay, send to payer, who will apply the transaction via their</span>
-	<span class="doccomment">///	// owner API, then send back the slate</span>
-	<span class="doccomment">///	// ...</span>
-	<span class="doccomment">///	# let slate = Slate::blank(2);</span>
+	<span class="doccomment">/// // If result okay, send to payer, who will apply the transaction via their</span>
+	<span class="doccomment">/// // owner API, then send back the slate</span>
+	<span class="doccomment">/// // ...</span>
+	<span class="doccomment">/// # let slate = Slate::blank(2);</span>
 	<span class="doccomment">///</span>
 	<span class="doccomment">/// let slate = api_foreign.finalize_invoice_tx(&amp;slate);</span>
 	<span class="doccomment">/// // if okay, then post via the owner API</span>
@@ -1015,7 +1015,7 @@
 		<span class="ident">wallet_config</span>.<span class="ident">data_file_dir</span> <span class="op">=</span> <span class="ident">dir</span>.<span class="ident">to_owned</span>();
 		<span class="kw">let</span> <span class="ident">pw</span> <span class="op">=</span> <span class="ident">ZeroingString</span>::<span class="ident">from</span>(<span class="string">&quot;&quot;</span>);
 
-		<span class="kw">let</span> <span class="ident">node_client</span> <span class="op">=</span> <span class="ident">HTTPNodeClient</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">wallet_config</span>.<span class="ident">check_node_api_http_addr</span>, <span class="prelude-val">None</span>);
+		<span class="kw">let</span> <span class="ident">node_client</span> <span class="op">=</span> <span class="ident">HTTPNodeClient</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">wallet_config</span>.<span class="ident">check_node_api_http_addr</span>, <span class="prelude-val">None</span>).<span class="ident">unwrap</span>();
 		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wallet</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(
 			<span class="ident">DefaultWalletImpl</span>::<span class="op">&lt;</span><span class="lifetime">&#39;static</span>, <span class="ident">HTTPNodeClient</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="ident">node_client</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>(),
 			)

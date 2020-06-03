@@ -434,6 +434,56 @@
 <span id="434">434</span>
 <span id="435">435</span>
 <span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="comment">// Copyright 2019 The Grin Developers</span>
 <span class="comment">// Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -456,17 +506,26 @@
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">secp</span>::<span class="ident">key</span>::{<span class="ident">PublicKey</span>, <span class="ident">SecretKey</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::<span class="ident">secp</span>::<span class="ident">pedersen</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::<span class="ident">util</span>::{<span class="ident">from_hex</span>, <span class="ident">to_hex</span>};
-<span class="kw">use</span> <span class="ident">failure</span>::<span class="ident">ResultExt</span>;
 
 <span class="kw">use</span> <span class="ident">base64</span>;
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">ed25519_dalek</span>::<span class="ident">PublicKey</span> <span class="kw">as</span> <span class="ident">DalekPublicKey</span>;
-<span class="kw">use</span> <span class="ident">grin_wallet_impls</span>::<span class="ident">encrypt</span>;
 <span class="kw">use</span> <span class="ident">rand</span>::{<span class="ident">thread_rng</span>, <span class="ident">Rng</span>};
 <span class="kw">use</span> <span class="ident">ring</span>::<span class="ident">aead</span>;
 <span class="kw">use</span> <span class="ident">serde_json</span>::{<span class="self">self</span>, <span class="ident">Value</span>};
 <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">HashMap</span>;
 <span class="kw">use</span> <span class="ident">uuid</span>::<span class="ident">Uuid</span>;
+
+<span class="doccomment">/// Represents a compliant JSON RPC 2.0 id.</span>
+<span class="doccomment">/// Valid id: Integer, String.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">untagged</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">JsonId</span> {
+	<span class="doccomment">/// Integer Id</span>
+	<span class="ident">IntId</span>(<span class="ident">u32</span>),
+	<span class="doccomment">/// String Id</span>
+	<span class="ident">StrId</span>(<span class="ident">String</span>),
+}
 
 <span class="doccomment">/// Wrapper for API Tokens</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Serialize</span>, <span class="ident">Deserialize</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
@@ -507,29 +566,29 @@
 	<span class="doccomment">/// Encrypts and encodes json as base 64</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json</span>(<span class="ident">json_in</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>, <span class="ident">enc_key</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
 		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">to_encrypt</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">json_in</span>)
-			.<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-				<span class="string">&quot;EncryptedBody Enc: Unable to encode JSON&quot;</span>.<span class="ident">to_owned</span>(),
-			))<span class="question-mark">?</span>
+			.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+				<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;EncryptedBody Enc: Unable to encode JSON, {}&quot;</span>, <span class="ident">e</span>))
+			})<span class="question-mark">?</span>
 			.<span class="ident">as_bytes</span>()
 			.<span class="ident">to_vec</span>();
-		<span class="kw">let</span> <span class="ident">sealing_key</span> <span class="op">=</span>
-			<span class="ident">encrypt</span>::<span class="ident">aead</span>::<span class="ident">SealingKey</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">encrypt</span>::<span class="ident">aead</span>::<span class="ident">CHACHA20_POLY1305</span>, <span class="kw-2">&amp;</span><span class="ident">enc_key</span>.<span class="number">0</span>).<span class="ident">context</span>(
-				<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="string">&quot;EncryptedBody Enc: Unable to create key&quot;</span>.<span class="ident">to_owned</span>()),
-			)<span class="question-mark">?</span>;
+
 		<span class="kw">let</span> <span class="ident">nonce</span>: [<span class="ident">u8</span>; <span class="number">12</span>] <span class="op">=</span> <span class="ident">thread_rng</span>().<span class="ident">gen</span>();
-		<span class="kw">let</span> <span class="ident">suffix_len</span> <span class="op">=</span> <span class="ident">aead</span>::<span class="ident">AES_256_GCM</span>.<span class="ident">tag_len</span>();
-		<span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">suffix_len</span> {
-			<span class="ident">to_encrypt</span>.<span class="ident">push</span>(<span class="number">0</span>);
+
+		<span class="kw">let</span> <span class="ident">unbound_key</span> <span class="op">=</span> <span class="ident">aead</span>::<span class="ident">UnboundKey</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">aead</span>::<span class="ident">AES_256_GCM</span>, <span class="kw-2">&amp;</span><span class="ident">enc_key</span>.<span class="number">0</span>).<span class="ident">unwrap</span>();
+		<span class="kw">let</span> <span class="ident">sealing_key</span>: <span class="ident">aead</span>::<span class="ident">LessSafeKey</span> <span class="op">=</span> <span class="ident">aead</span>::<span class="ident">LessSafeKey</span>::<span class="ident">new</span>(<span class="ident">unbound_key</span>);
+		<span class="kw">let</span> <span class="ident">aad</span> <span class="op">=</span> <span class="ident">aead</span>::<span class="ident">Aad</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span>[]);
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">sealing_key</span>.<span class="ident">seal_in_place_append_tag</span>(
+			<span class="ident">aead</span>::<span class="ident">Nonce</span>::<span class="ident">assume_unique_for_key</span>(<span class="ident">nonce</span>),
+			<span class="ident">aad</span>,
+			<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">to_encrypt</span>,
+		);
+		<span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">e</span>) <span class="op">=</span> <span class="ident">res</span> {
+			<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedBody: encryption failed, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+			.<span class="ident">into</span>());
 		}
-
-		<span class="ident">encrypt</span>::<span class="ident">aead</span>::<span class="ident">seal_in_place</span>(<span class="kw-2">&amp;</span><span class="ident">sealing_key</span>, <span class="kw-2">&amp;</span><span class="ident">nonce</span>, <span class="kw-2">&amp;</span>[], <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">to_encrypt</span>, <span class="ident">suffix_len</span>)
-			.<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-				<span class="string">&quot;EncryptedBody: Encryption Failed&quot;</span>.<span class="ident">to_owned</span>(),
-			))<span class="question-mark">?</span>;
-
-		<span class="comment">//		aead::seal_in_place(&amp;sealing_key, &amp;nonce, &amp;[], &amp;mut to_encrypt, suffix_len).context(</span>
-		<span class="comment">//			ErrorKind::APIEncryption(&quot;EncryptedBody: Encryption Failed&quot;.to_owned()),</span>
-		<span class="comment">//		)?;</span>
 
 		<span class="prelude-val">Ok</span>(<span class="ident">EncryptedBody</span> {
 			<span class="ident">nonce</span>: <span class="ident">to_hex</span>(<span class="ident">nonce</span>.<span class="ident">to_vec</span>()),
@@ -539,49 +598,68 @@
 
 	<span class="doccomment">/// return serialize JSON self</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedBody: JSON serialization failed&quot;</span>.<span class="ident">to_owned</span>(),
-		))<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;EncryptedBody: JSON serialization failed, {}&quot;</span>, <span class="ident">e</span>))
+		})<span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 	}
 
 	<span class="doccomment">/// return serialized JSON self as string</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
 		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_json_value</span>()<span class="question-mark">?</span>;
-		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedBody: JSON String serialization failed&quot;</span>.<span class="ident">to_owned</span>(),
-		))<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedBody: JSON String serialization failed, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		})<span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 	}
 
 	<span class="doccomment">/// Return original request</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decrypt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dec_key</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">to_decrypt</span> <span class="op">=</span> <span class="ident">base64</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body_enc</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedBody Dec: Encrypted request contains invalid Base64&quot;</span>.<span class="ident">to_string</span>(),
-		))<span class="question-mark">?</span>;
-		<span class="kw">let</span> <span class="ident">opening_key</span> <span class="op">=</span>
-			<span class="ident">encrypt</span>::<span class="ident">aead</span>::<span class="ident">OpeningKey</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">encrypt</span>::<span class="ident">aead</span>::<span class="ident">CHACHA20_POLY1305</span>, <span class="kw-2">&amp;</span><span class="ident">dec_key</span>.<span class="number">0</span>).<span class="ident">context</span>(
-				<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="string">&quot;EncryptedBody Dec: Unable to create key&quot;</span>.<span class="ident">to_owned</span>()),
-			)<span class="question-mark">?</span>;
-		<span class="kw">let</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="ident">from_hex</span>(<span class="self">self</span>.<span class="ident">nonce</span>.<span class="ident">clone</span>()).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedBody Dec: Invalid Nonce&quot;</span>.<span class="ident">to_string</span>(),
-		))<span class="question-mark">?</span>;
-		<span class="ident">encrypt</span>::<span class="ident">aead</span>::<span class="ident">open_in_place</span>(<span class="kw-2">&amp;</span><span class="ident">opening_key</span>, <span class="kw-2">&amp;</span><span class="ident">nonce</span>, <span class="kw-2">&amp;</span>[], <span class="number">0</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">to_decrypt</span>).<span class="ident">context</span>(
-			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-				<span class="string">&quot;EncryptedBody Dec: Decryption Failed (is key correct?)&quot;</span>.<span class="ident">to_string</span>(),
-			),
-		)<span class="question-mark">?</span>;
-		<span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">encrypt</span>::<span class="ident">aead</span>::<span class="ident">CHACHA20_POLY1305</span>.<span class="ident">tag_len</span>() {
+		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">to_decrypt</span> <span class="op">=</span> <span class="ident">base64</span>::<span class="ident">decode</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">body_enc</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedBody Dec: Encrypted request contains invalid Base64, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		})<span class="question-mark">?</span>;
+
+		<span class="kw">let</span> <span class="ident">nonce</span> <span class="op">=</span> <span class="ident">from_hex</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nonce</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedBody Dec: Encrypted request contains invalid nonce, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		})<span class="question-mark">?</span>;
+
+		<span class="kw">if</span> <span class="ident">nonce</span>.<span class="ident">len</span>() <span class="op">&lt;</span> <span class="number">12</span> {
+			<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
+				<span class="string">&quot;EncryptedBody Dec: Invalid Nonce length&quot;</span>.<span class="ident">to_string</span>(),
+			)
+			.<span class="ident">into</span>());
+		}
+		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> [<span class="number">0u8</span>; <span class="number">12</span>];
+		<span class="ident">n</span>.<span class="ident">copy_from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">nonce</span>[<span class="number">0</span>..<span class="number">12</span>]);
+		<span class="kw">let</span> <span class="ident">unbound_key</span> <span class="op">=</span> <span class="ident">aead</span>::<span class="ident">UnboundKey</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">aead</span>::<span class="ident">AES_256_GCM</span>, <span class="kw-2">&amp;</span><span class="ident">dec_key</span>.<span class="number">0</span>).<span class="ident">unwrap</span>();
+		<span class="kw">let</span> <span class="ident">opening_key</span>: <span class="ident">aead</span>::<span class="ident">LessSafeKey</span> <span class="op">=</span> <span class="ident">aead</span>::<span class="ident">LessSafeKey</span>::<span class="ident">new</span>(<span class="ident">unbound_key</span>);
+		<span class="kw">let</span> <span class="ident">aad</span> <span class="op">=</span> <span class="ident">aead</span>::<span class="ident">Aad</span>::<span class="ident">from</span>(<span class="kw-2">&amp;</span>[]);
+		<span class="ident">opening_key</span>
+			.<span class="ident">open_in_place</span>(<span class="ident">aead</span>::<span class="ident">Nonce</span>::<span class="ident">assume_unique_for_key</span>(<span class="ident">n</span>), <span class="ident">aad</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">to_decrypt</span>)
+			.<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+				<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;EncryptedBody: decryption failed, {}&quot;</span>, <span class="ident">e</span>))
+			})<span class="question-mark">?</span>;
+
+		<span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">aead</span>::<span class="ident">AES_256_GCM</span>.<span class="ident">tag_len</span>() {
 			<span class="ident">to_decrypt</span>.<span class="ident">pop</span>();
 		}
-		<span class="kw">let</span> <span class="ident">decrypted</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">to_decrypt</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedBody Dec: Invalid UTF-8&quot;</span>.<span class="ident">to_string</span>(),
-		))<span class="question-mark">?</span>;
-		<span class="prelude-val">Ok</span>(
-			<span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">decrypted</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-				<span class="string">&quot;EncryptedBody Dec: Invalid JSON&quot;</span>.<span class="ident">to_string</span>(),
-			))<span class="question-mark">?</span>,
-		)
+
+		<span class="kw">let</span> <span class="ident">decrypted</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">to_decrypt</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="string">&quot;EncryptedBody Dec: Invalid UTF-8&quot;</span>.<span class="ident">to_string</span>())
+		})<span class="question-mark">?</span>;
+
+		<span class="prelude-val">Ok</span>(<span class="ident">serde_json</span>::<span class="ident">from_str</span>(<span class="kw-2">&amp;</span><span class="ident">decrypted</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(<span class="string">&quot;EncryptedBody Dec: Invalid JSON, {}&quot;</span>, <span class="ident">e</span>))
+		})<span class="question-mark">?</span>)
 	}
 }
 
@@ -593,36 +671,42 @@
 	<span class="doccomment">/// method</span>
 	<span class="kw">pub</span> <span class="ident">method</span>: <span class="ident">String</span>,
 	<span class="doccomment">/// id</span>
-	<span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u32</span>,
+	<span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">JsonId</span>,
 	<span class="doccomment">/// Body params, which includes nonce and encrypted request</span>
 	<span class="kw">pub</span> <span class="ident">params</span>: <span class="ident">EncryptedBody</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">EncryptedRequest</span> {
 	<span class="doccomment">/// from json</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json</span>(<span class="ident">id</span>: <span class="ident">u32</span>, <span class="ident">json_in</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>, <span class="ident">enc_key</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json</span>(<span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">JsonId</span>, <span class="ident">json_in</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>, <span class="ident">enc_key</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
 		<span class="prelude-val">Ok</span>(<span class="ident">EncryptedRequest</span> {
 			<span class="ident">jsonrpc</span>: <span class="string">&quot;2.0&quot;</span>.<span class="ident">to_owned</span>(),
 			<span class="ident">method</span>: <span class="string">&quot;encrypted_request_v3&quot;</span>.<span class="ident">to_owned</span>(),
-			<span class="ident">id</span>: <span class="ident">id</span>,
+			<span class="ident">id</span>: <span class="ident">id</span>.<span class="ident">clone</span>(),
 			<span class="ident">params</span>: <span class="ident">EncryptedBody</span>::<span class="ident">from_json</span>(<span class="ident">json_in</span>, <span class="ident">enc_key</span>)<span class="question-mark">?</span>,
 		})
 	}
 
 	<span class="doccomment">/// return serialize JSON self</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedRequest: JSON serialization failed&quot;</span>.<span class="ident">to_owned</span>(),
-		))<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedRequest: JSON serialization failed, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		})<span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 	}
 
 	<span class="doccomment">/// return serialized JSON self as string</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
 		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_json_value</span>()<span class="question-mark">?</span>;
-		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedRequest: JSON String serialization failed&quot;</span>.<span class="ident">to_owned</span>(),
-		))<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedRequest: JSON String serialization failed, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		})<span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 	}
 
@@ -638,14 +722,14 @@
 	<span class="doccomment">/// JSON RPC response</span>
 	<span class="kw">pub</span> <span class="ident">jsonrpc</span>: <span class="ident">String</span>,
 	<span class="doccomment">/// id</span>
-	<span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u32</span>,
+	<span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">JsonId</span>,
 	<span class="doccomment">/// result</span>
 	<span class="kw">pub</span> <span class="ident">result</span>: <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">EncryptedBody</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">EncryptedResponse</span> {
 	<span class="doccomment">/// from json</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json</span>(<span class="ident">id</span>: <span class="ident">u32</span>, <span class="ident">json_in</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>, <span class="ident">enc_key</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_json</span>(<span class="ident">id</span>: <span class="kw-2">&amp;</span><span class="ident">JsonId</span>, <span class="ident">json_in</span>: <span class="kw-2">&amp;</span><span class="ident">Value</span>, <span class="ident">enc_key</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
 		<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">result_set</span> <span class="op">=</span> <span class="ident">HashMap</span>::<span class="ident">new</span>();
 		<span class="ident">result_set</span>.<span class="ident">insert</span>(
 			<span class="string">&quot;Ok&quot;</span>.<span class="ident">to_string</span>(),
@@ -653,31 +737,42 @@
 		);
 		<span class="prelude-val">Ok</span>(<span class="ident">EncryptedResponse</span> {
 			<span class="ident">jsonrpc</span>: <span class="string">&quot;2.0&quot;</span>.<span class="ident">to_owned</span>(),
-			<span class="ident">id</span>: <span class="ident">id</span>,
+			<span class="ident">id</span>: <span class="ident">id</span>.<span class="ident">clone</span>(),
 			<span class="ident">result</span>: <span class="ident">result_set</span>,
 		})
 	}
 
 	<span class="doccomment">/// return serialize JSON self</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedResponse: JSON serialization failed&quot;</span>.<span class="ident">to_owned</span>(),
-		))<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedResponse: JSON serialization failed, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		})<span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 	}
 
 	<span class="doccomment">/// return serialized JSON self as string</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json_str</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
 		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">as_json_value</span>()<span class="question-mark">?</span>;
-		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedResponse: JSON String serialization failed&quot;</span>.<span class="ident">to_owned</span>(),
-		))<span class="question-mark">?</span>;
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="ident">res</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedResponse: JSON String serialization failed, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		})<span class="question-mark">?</span>;
 		<span class="prelude-val">Ok</span>(<span class="ident">res</span>)
 	}
 
 	<span class="doccomment">/// Return decrypted body</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">decrypt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">dec_key</span>: <span class="kw-2">&amp;</span><span class="ident">SecretKey</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Value</span>, <span class="ident">Error</span><span class="op">&gt;</span> {
-		<span class="self">self</span>.<span class="ident">result</span>.<span class="ident">get</span>(<span class="string">&quot;Ok&quot;</span>).<span class="ident">unwrap</span>().<span class="ident">decrypt</span>(<span class="ident">dec_key</span>)
+		<span class="self">self</span>.<span class="ident">result</span>
+			.<span class="ident">get</span>(<span class="string">&quot;Ok&quot;</span>)
+			.<span class="ident">ok_or</span>(<span class="ident">ErrorKind</span>::<span class="ident">GenericError</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;Not found expetced &#39;OK&#39; value at result&quot;</span>
+			)))<span class="question-mark">?</span>
+			.<span class="ident">decrypt</span>(<span class="ident">dec_key</span>)
 	}
 }
 
@@ -696,14 +791,15 @@
 	<span class="doccomment">/// JSON RPC response</span>
 	<span class="kw">pub</span> <span class="ident">jsonrpc</span>: <span class="ident">String</span>,
 	<span class="doccomment">/// id</span>
-	<span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u32</span>,
+	<span class="attribute">#[<span class="ident">serde</span>(<span class="ident">with</span> <span class="op">=</span> <span class="string">&quot;secp_ser::string_or_u64&quot;</span>)]</span>
+	<span class="kw">pub</span> <span class="ident">id</span>: <span class="ident">u64</span>,
 	<span class="doccomment">/// error</span>
 	<span class="kw">pub</span> <span class="ident">error</span>: <span class="ident">EncryptionError</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">EncryptionErrorResponse</span> {
 	<span class="doccomment">/// Create new response</span>
-	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">u32</span>, <span class="ident">code</span>: <span class="ident">i32</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">id</span>: <span class="ident">u64</span>, <span class="ident">code</span>: <span class="ident">i32</span>, <span class="ident">message</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
 		<span class="ident">EncryptionErrorResponse</span> {
 			<span class="ident">jsonrpc</span>: <span class="string">&quot;2.0&quot;</span>.<span class="ident">to_owned</span>(),
 			<span class="ident">id</span>: <span class="ident">id</span>,
@@ -716,9 +812,12 @@
 
 	<span class="doccomment">/// return serialized JSON self</span>
 	<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">as_json_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Value</span> {
-		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">context</span>(<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(
-			<span class="string">&quot;EncryptedResponse: JSON serialization failed&quot;</span>.<span class="ident">to_owned</span>(),
-		));
+		<span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="ident">to_value</span>(<span class="self">self</span>).<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> {
+			<span class="ident">ErrorKind</span>::<span class="ident">APIEncryption</span>(<span class="macro">format</span><span class="macro">!</span>(
+				<span class="string">&quot;EncryptedResponse: JSON serialization failed, {}&quot;</span>,
+				<span class="ident">e</span>
+			))
+		});
 		<span class="kw">match</span> <span class="ident">res</span> {
 			<span class="prelude-val">Ok</span>(<span class="ident">r</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">r</span>,
 			<span class="comment">// proverbial &quot;should never happen&quot;</span>
@@ -847,7 +946,7 @@
 		<span class="kw">let</span> <span class="ident">secp_inst</span> <span class="op">=</span> <span class="ident">static_secp_instance</span>();
 		<span class="kw">let</span> <span class="ident">secp</span> <span class="op">=</span> <span class="ident">secp_inst</span>.<span class="ident">lock</span>();
 
-		<span class="kw">let</span> <span class="ident">sec_key_bytes</span> <span class="op">=</span> <span class="ident">from_hex</span>(<span class="ident">sec_key_str</span>.<span class="ident">to_owned</span>()).<span class="ident">unwrap</span>();
+		<span class="kw">let</span> <span class="ident">sec_key_bytes</span> <span class="op">=</span> <span class="ident">from_hex</span>(<span class="ident">sec_key_str</span>).<span class="ident">unwrap</span>();
 		<span class="ident">SecretKey</span>::<span class="ident">from_slice</span>(<span class="kw-2">&amp;</span><span class="ident">secp</span>, <span class="kw-2">&amp;</span><span class="ident">sec_key_bytes</span>)<span class="question-mark">?</span>
 	};
 	<span class="kw">let</span> <span class="ident">req</span> <span class="op">=</span> <span class="ident">serde_json</span>::<span class="macro">json</span><span class="macro">!</span>({
@@ -858,12 +957,13 @@
 			<span class="string">&quot;token&quot;</span>: <span class="string">&quot;d202964900000000d302964900000000d402964900000000d502964900000000&quot;</span>
 		}
 	});
-	<span class="kw">let</span> <span class="ident">enc_req</span> <span class="op">=</span> <span class="ident">EncryptedRequest</span>::<span class="ident">from_json</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">shared_key</span>)<span class="question-mark">?</span>;
+	<span class="kw">let</span> <span class="ident">enc_req</span> <span class="op">=</span>
+		<span class="ident">EncryptedRequest</span>::<span class="ident">from_json</span>(<span class="kw-2">&amp;</span><span class="ident">JsonId</span>::<span class="ident">StrId</span>(<span class="ident">String</span>::<span class="ident">from</span>(<span class="string">&quot;1&quot;</span>)), <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">shared_key</span>)<span class="question-mark">?</span>;
 	<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">enc_req</span>);
 	<span class="kw">let</span> <span class="ident">dec_req</span> <span class="op">=</span> <span class="ident">enc_req</span>.<span class="ident">decrypt</span>(<span class="kw-2">&amp;</span><span class="ident">shared_key</span>)<span class="question-mark">?</span>;
 	<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">dec_req</span>);
 	<span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">req</span>, <span class="ident">dec_req</span>);
-	<span class="kw">let</span> <span class="ident">enc_res</span> <span class="op">=</span> <span class="ident">EncryptedResponse</span>::<span class="ident">from_json</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">shared_key</span>)<span class="question-mark">?</span>;
+	<span class="kw">let</span> <span class="ident">enc_res</span> <span class="op">=</span> <span class="ident">EncryptedResponse</span>::<span class="ident">from_json</span>(<span class="kw-2">&amp;</span><span class="ident">JsonId</span>::<span class="ident">IntId</span>(<span class="number">1</span>), <span class="kw-2">&amp;</span><span class="ident">req</span>, <span class="kw-2">&amp;</span><span class="ident">shared_key</span>)<span class="question-mark">?</span>;
 	<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">enc_res</span>);
 	<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">enc_res</span>.<span class="ident">as_json_str</span>()<span class="question-mark">?</span>);
 	<span class="kw">let</span> <span class="ident">dec_res</span> <span class="op">=</span> <span class="ident">enc_res</span>.<span class="ident">decrypt</span>(<span class="kw-2">&amp;</span><span class="ident">shared_key</span>)<span class="question-mark">?</span>;
